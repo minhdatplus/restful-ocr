@@ -12,7 +12,7 @@ api = Api(app)
 
 parser = reqparse.RequestParser()
 parser.add_argument('image_url')
-parser.add_argument('download')
+parser.add_argument('image_type')
 
 
 def download_image(url, file_name):
@@ -49,10 +49,15 @@ def convert_gif_to_png(url, file_name):
 class OCR(Resource):
     def post(self):
         args = parser.parse_args()
-        isDownload = args['download']
         imageURL = args['image_url']
-        if isDownload == 'true':
-            try:
+        imageType = args['image_type']
+        try:
+            if imageType != 'gif':
+                response_number = detect_captcha(imageURL)
+                return {
+                    "code": response_number
+                }
+            else:
                 full_path, file_name = download_image(imageURL, 'image.gif')
                 print(full_path)
                 convert_image_path = convert_gif_to_png(full_path, file_name)
@@ -61,14 +66,9 @@ class OCR(Resource):
                 return {
                     "code": response_number
                 }
-            except ValueError:
-                return {
-                    "code": "error"
-                }
-        else:
-            response_number = detect_captcha(imageURL)
+        except ValueError:
             return {
-                "code": response_number
+                "code": "error"
             }
 
 
