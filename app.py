@@ -16,17 +16,18 @@ parser.add_argument('download')
 
 
 def download_image(url, file_name):
-    full_path = app.root_path + app.static_url_path + '/' + file_name
+    # full_path = app.root_path + app.static_url_path + '/' + file_name
+    full_path = app.root_path + '/' + file_name
     res = requests.get(url, stream=True)
     if res.status_code == 200:
         with open(file_name, 'wb') as f:
             shutil.copyfileobj(res.raw, f)
-        shutil.move(os.path.join(app.root_path, file_name),
-                    os.path.join(app.root_path + app.static_url_path, file_name))
+        # shutil.move(os.path.join(app.root_path, file_name),
+        #             os.path.join(app.root_path + app.static_url_path, file_name))
         print('Image sucessfully Downloaded: ', full_path)
     else:
         print('Image Couldn\'t be retrieved')
-    return app.root_path + app.static_url_path, file_name
+    return app.root_path, file_name
 
 
 def detect_captcha(url):
