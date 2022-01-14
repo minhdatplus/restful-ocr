@@ -1,5 +1,8 @@
 easyocr==1.4.1
 Flask-RESTful==0.3.9
+pipdeptree==2.2.1
+requests==2.27.1
 setuptools==57.0.0
+wget==3.2
 wheel==0.36.2
 opencv-python-headless==4.5.4.60
