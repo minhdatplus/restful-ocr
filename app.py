@@ -10,6 +10,11 @@ import requests
 app = Flask(__name__, static_url_path='/static')
 api = Api(app)
 
+parser = reqparse.RequestParser()
+parser.add_argument('file')
+parser.add_argument('image_url')
+parser.add_argument('image_type')
+
 
 def download_image(url, file_name):
     full_path = app.root_path + '/' + file_name
@@ -39,10 +44,28 @@ def convert_gif_to_png(url, file_name):
     return convert_path
 
 
-class OCR(Resource):
+class FILE(Resource):
+
     def post(self):
-        dict_data = request.json
-        json_data = dict_data['data']
+        file_data = request.files['file']
+        print(request)
+        try:
+            image_path = os.path.join(app.root_path, 'image_file.png')
+            file_data.save(image_path)
+            response_number = detect_captcha(image_path)
+            return {
+                "code": response_number
+            }
+        except ValueError:
+            return {
+                "code": "error"
+            }
+
+
+class URL(Resource):
+
+    def post(self):
+        json_data = request.json
         imageURL = json_data['image_url']
         imageType = json_data['image_type']
         print(json_data)
@@ -69,7 +92,8 @@ class OCR(Resource):
             }
 
 
-api.add_resource(OCR, '/ocr')
+api.add_resource(FILE, '/ocr/file')
+api.add_resource(URL, '/ocr/url')
 
 if __name__ == '__main__':
     app.run()
