@@ -3,27 +3,20 @@ import shutil
 
 from PIL import Image, ImageDraw, ImageFont
 from flask import Flask
-from flask_restful import Resource, Api, reqparse
+from flask_restful import Resource, Api, reqparse, request
 import easyocr
 import requests
 
 app = Flask(__name__, static_url_path='/static')
 api = Api(app)
 
-parser = reqparse.RequestParser()
-parser.add_argument('image_url')
-parser.add_argument('image_type')
-
 
 def download_image(url, file_name):
-    # full_path = app.root_path + app.static_url_path + '/' + file_name
     full_path = app.root_path + '/' + file_name
     res = requests.get(url, stream=True)
     if res.status_code == 200:
         with open(file_name, 'wb') as f:
             shutil.copyfileobj(res.raw, f)
-        # shutil.move(os.path.join(app.root_path, file_name),
-        #             os.path.join(app.root_path + app.static_url_path, file_name))
         print('Image sucessfully Downloaded: ', full_path)
     else:
         print('Image Couldn\'t be retrieved')
@@ -31,7 +24,7 @@ def download_image(url, file_name):
 
 
 def detect_captcha(url):
-    reader = easyocr.Reader(['en', 'en'])  # this needs to run only once to load the model into memory
+    reader = easyocr.Reader(['en', 'en'])
     result = reader.readtext(url)
     return result[0][1]
 
@@ -48,9 +41,13 @@ def convert_gif_to_png(url, file_name):
 
 class OCR(Resource):
     def post(self):
-        args = parser.parse_args()
-        imageURL = args['image_url']
-        imageType = args['image_type']
+        dict_data = request.json
+        json_data = dict_data['data']
+        imageURL = json_data['image_url']
+        imageType = json_data['image_type']
+        print(json_data)
+        print(imageURL)
+        print(imageType)
         try:
             if imageType != 'gif':
                 response_number = detect_captcha(imageURL)

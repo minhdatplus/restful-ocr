@@ -6,3 +6,5 @@ setuptools==57.0.0
 wget==3.2
 wheel==0.36.2
 opencv-python-headless==4.5.4.60
+Pillow~=8.2.0
+Flask~=2.0.2
